@@ -1,0 +1,1469 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smart Watch Project — Component Visualization</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            opacity: 0.95;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 18px;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(6px);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+            .panel h2 {
+                margin-bottom: 16px;
+                color: #fdbb2d;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                padding-bottom: 8px;
+            }
+
+        .component {
+            display: flex;
+            gap: 14px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+            .component:hover {
+                background: rgba(255, 255, 255, 0.08);
+                transform: translateY(-2px);
+            }
+
+            .component.active {
+                background: rgba(253, 187, 45, 0.15);
+                border: 1px solid rgba(253, 187, 45, 0.3);
+            }
+
+            .component img {
+                width: 110px;
+                height: 110px;
+                object-fit: cover;
+                border-radius: 8px;
+                flex-shrink: 0;
+            }
+
+            .component h3 {
+                color: #fdbb2d;
+                margin-bottom: 6px;
+            }
+
+            .component p {
+                margin-bottom: 8px;
+                opacity: 0.9;
+            }
+
+        .info-box {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        button {
+            background: #fdbb2d;
+            color: #10203a;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            button:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            button.active {
+                background: #1a2a6c;
+                color: white;
+            }
+
+            button svg {
+                width: 16px;
+                height: 16px;
+            }
+
+        #model-container {
+            height: 420px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .component-info {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 8px;
+            min-height: 80px;
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .spec-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+            .spec-card:hover {
+                transform: translateY(-4px);
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            .spec-card h3 {
+                color: #fdbb2d;
+                margin-bottom: 6px;
+            }
+
+        .component-label {
+            position: absolute;
+            pointer-events: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            font-size: 13px;
+            color: #fff;
+            opacity: 0;
+            transition: opacity 0.18s;
+            z-index: 10;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.9;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .instructions {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .connection-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .wire-color {
+            width: 16px;
+            height: 4px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .highlighted {
+            filter: drop-shadow(0 0 8px #fdbb2d);
+            transition: filter 0.3s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .schedule-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+            .search-box input {
+                width: 100%;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.15);
+                color: white;
+                font-size: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+                .search-box input::placeholder {
+                    color: rgba(255, 255, 255, 0.7);
+                }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 20px;
+            background: rgba(253, 187, 45, 0.9);
+            color: #1a2a6c;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .filter-btn:hover {
+                background: #fdbb2d;
+                transform: translateY(-2px);
+            }
+
+            .filter-btn.active {
+                background: #1a2a6c;
+                color: white;
+            }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: rgba(253, 187, 45, 0.9);
+            color: #1a2a6c;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .group-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(253, 187, 45, 0.2);
+            border: 1px solid rgba(253, 187, 45, 0.5);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fdbb2d;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .filter-group {
+                justify-content: center;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+
+    <!-- three.js and OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Smart Watch Project — Component Visualization</h1>
+            <p class="subtitle">ESP32 + 240×240 TFT + MAX30102 + Li-Po — Interactive 3D components with details</p>
+        </header>
+
+        <div class="content">
+            <!-- Components / docs -->
+            <section class="panel">
+                <h2>Components</h2>
+
+                <div class="component" data-part="esp32">
+                    <img src="https://tse3.mm.bing.net/th/id/OIP.7bbE3Go7hvv2TYPyGpI8uAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="ESP32">
+                    <div>
+                        <h3>ESP32 Microcontroller</h3>
+                        <p>Runs firmware, provides Wi-Fi/Bluetooth and controls display & sensors. Uses SPI for TFT and I²C for MAX30102.</p>
+                        <div class="info-box"><strong>Typical pins:</strong> SDA=GPIO21, SCL=GPIO22, MOSI=GPIO23, SCK=GPIO18, CS=GPIO5</div>
+                    </div>
+                </div>
+
+                <div class="component" data-part="tft">
+                    <img src="https://www.electronicscomp.com/image/cache/catalog/2.8-inch-spi-touch-screen-module-tft-interface-240*320-1-800x800.jpg" alt="TFT">
+                    <div>
+                        <h3>TFT LCD 240×240</h3>
+                        <p>Shows UI, watch faces and plots. Prefer SPI (ILI9xxx). Keep SPI lines short and shielded in wearables.</p>
+                        <div class="info-box"><strong>Pins:</strong> MOSI, SCLK, CS, DC, RST, VCC, GND</div>
+                    </div>
+                </div>
+
+                <div class="component" data-part="max30102">
+                    <img src="https://makerselectronics.com/wp-content/uploads/2021/11/max30102_side_profile-1341x1341.jpg" alt="MAX30102">
+                    <div>
+                        <h3>MAX30102 Sensor</h3>
+                        <p>Optical heart-rate & SpO₂ sensor. I²C device — needs skin contact and signal processing (filtering + beat detection).</p>
+                        <div class="info-box"><strong>Pins:</strong> VCC (3.3V), GND, SDA, SCL, INT</div>
+                    </div>
+                </div>
+
+                <div class="component" data-part="battery">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKBEYrLedg0bAM41I-K-0-OPv1sA6ygyzZKw&s" alt="LiPo">
+                    <div>
+                        <h3>Li-Po Battery 3.7V</h3>
+                        <p>Single-cell rechargeable battery. Use a TP4056 or dedicated charger and a protection board. Never connect raw battery to USB.</p>
+                        <div class="info-box"><strong>Note:</strong> Provide proper charging and a protection circuit (PCM).</div>
+                    </div>
+                </div>
+                <div class="container">
+                    <header>
+                        <h1>Student Schedule</h1>
+                        <p class="subtitle">Smart Watch Project Team Members</p>
+                    </header>
+
+                    <div class="schedule-container">
+                        <div class="controls">
+                            <div class="search-box">
+                                <input type="text" id="searchInput" placeholder="Search by name, ID, or group...">
+                            </div>
+                            <div class="filter-group">
+                                <button class="filter-btn active" data-filter="all">All Students</button>
+                                <button class="filter-btn" data-filter="E1">Group E1</button>
+                                <button class="filter-btn" data-filter="A">Group A</button>
+                                <button class="filter-btn" data-filter="B">Group B</button>
+                                <button class="filter-btn" data-filter="C">Group C</button>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table id="studentTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>ID</th>
+                                        <th>Group</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    <!-- Students will be populated here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="stats">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalStudents">0</div>
+                                <div class="stat-label">Total Students</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalGroups">0</div>
+                                <div class="stat-label">Total Groups</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    </div>
+            </section>
+
+            <!-- 3D Model -->
+            <section class="panel">
+                <h2>Interactive 3D Component Visualization</h2>
+                <div id="model-container">
+                    <div class="loading">Loading 3D model...</div>
+                </div>
+
+                <div class="controls">
+                    <button id="rotate-btn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97-.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
+                        </svg>
+                        Rotate Model
+                    </button>
+                    <button id="reset-btn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                        </svg>
+                        Reset View
+                    </button>
+                </div>
+
+                <div class="instructions">Click on components in the 3D model to see details and highlight connections</div>
+
+                <div class="component-info" id="component-info">
+                    <strong>Select a component</strong> — detailed information and connections will appear here.
+                </div>
+            </section>
+        </div>
+
+        <section class="specs">
+            <div class="spec-card"><h3>Display</h3><p>1.3" TFT, 240×240</p></div>
+            <div class="spec-card"><h3>Connectivity</h3><p>ESP32 — Wi-Fi & BLE</p></div>
+            <div class="spec-card"><h3>Sensors</h3><p>MAX30102 — HR & SpO₂</p></div>
+            <div class="spec-card"><h3>Battery</h3><p>3.7V Li-Po, requires charger</p></div>
+        </section>
+        <div>
+
+        </div>
+        <footer>
+            Smart Watch Project © — Component Visualization
+        </footer>
+    </div>
+
+    <!-- small label used for hover -->
+    <div id="hover-label" class="component-label"></div>
+
+    <script>
+        (function () {
+            // Remove loading indicator
+            const loadingEl = document.querySelector('.loading');
+
+            // --- Basic scene setup ---
+            const container = document.getElementById('model-container');
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a2a6c);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            const camera = new THREE.PerspectiveCamera(48, 2, 0.1, 1000);
+            camera.position.set(0, 6, 18);
+
+            // Orbit controls
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.12;
+            controls.minDistance = 5;
+            controls.maxDistance = 60;
+            controls.target.set(0, 0, 0);
+
+            // lights
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
+            scene.add(hemisphereLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(10, 30, 20);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            // responsiveness
+            function resize() {
+                const w = container.clientWidth || 600;
+                const h = container.clientHeight || 400;
+                renderer.setSize(w, h);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            }
+            window.addEventListener('resize', resize, { passive: true });
+            resize();
+
+            // raycaster + mouse for hover/click
+            const ray = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let hovered = null;
+
+            // containers
+            const group = new THREE.Group();
+            scene.add(group);
+
+            // store components with logical names
+            const parts = {};
+
+            // helper: make simple label texture for small name sprites
+            function makeLabelTexture(text, opts = {}) {
+                const w = 512, h = 128;
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = opts.bg || 'rgba(10,14,24,0.95)';
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = opts.color || '#fff';
+                ctx.font = '36px sans-serif';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, 20, h / 2);
+                const tex = new THREE.CanvasTexture(canvas);
+                return tex;
+            }
+
+            // --- Create components with improved graphics ---
+            function createESP32() {
+                const g = new THREE.Group();
+
+                // Main board with more realistic PCB texture
+                const boardGeometry = new THREE.BoxGeometry(3.0, 1.8, 0.12);
+                const boardMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x2e8b57,
+                    shininess: 30
+                });
+                const board = new THREE.Mesh(boardGeometry, boardMaterial);
+                board.castShadow = true;
+                g.add(board);
+
+                // Main chip
+                const chipGeometry = new THREE.BoxGeometry(1.0, 0.8, 0.06);
+                const chipMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x111111,
+                    shininess: 80
+                });
+                const chip = new THREE.Mesh(chipGeometry, chipMaterial);
+                chip.position.set(0, 0.35, 0.09);
+                chip.castShadow = true;
+                g.add(chip);
+
+                // Additional components on the board
+                const componentGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.08);
+                const componentMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
+
+                // Add some components
+                for (let i = 0; i < 4; i++) {
+                    const component = new THREE.Mesh(componentGeometry, componentMaterial);
+                    component.position.set(-0.8 + i * 0.5, -0.5, 0.08);
+                    g.add(component);
+                }
+
+                // pin rows (visual only)
+                const pMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+                for (let i = 0; i < 10; i++) {
+                    const pin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 0.06), pMat);
+                    pin.position.set(-1.1 + i * 0.22, 0.98, 0);
+                    g.add(pin);
+                }
+                for (let i = 0; i < 10; i++) {
+                    const pin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 0.06), pMat);
+                    pin.position.set(-1.1 + i * 0.22, -0.98, 0);
+                    g.add(pin);
+                }
+
+                // Add antenna
+                const antennaGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.05);
+                const antennaMaterial = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                const antenna = new THREE.Mesh(antennaGeometry, antennaMaterial);
+                antenna.position.set(1.2, 0.7, 0.08);
+                g.add(antenna);
+
+                g.name = 'esp32';
+                return g;
+            }
+
+            function createTFT() {
+                const g = new THREE.Group();
+
+                // Frame
+                const frameGeometry = new THREE.CylinderGeometry(3.5, 3.5, 0.2, 64);
+                const frameMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x05070a,
+                    shininess: 60
+                });
+                const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+                frame.rotation.x = Math.PI / 2;
+                frame.castShadow = true;
+                g.add(frame);
+
+                // Screen with more realistic appearance
+                const screenGeometry = new THREE.CircleGeometry(3.2, 64);
+                const screenMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x001133,
+                    shininess: 90,
+                    specular: 0x222266
+                });
+                const screen = new THREE.Mesh(screenGeometry, screenMaterial);
+                screen.rotation.x = Math.PI / 2;
+                screen.position.z = 0.12;
+                g.add(screen);
+
+                // Add some screen content (simulated)
+                const pixelGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.02);
+                const pixelMaterial = new THREE.MeshPhongMaterial({ color: 0x00aaff });
+
+                // Add some "pixels" to simulate screen content
+                for (let i = 0; i < 5; i++) {
+                    for (let j = 0; j < 5; j++) {
+                        const pixel = new THREE.Mesh(pixelGeometry, pixelMaterial);
+                        pixel.position.set(-0.4 + i * 0.2, -0.4 + j * 0.2, 0.14);
+                        g.add(pixel);
+                    }
+                }
+
+                // a small connector pad
+                const connGeometry = new THREE.BoxGeometry(0.9, 0.18, 0.08);
+                const connMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+                const conn = new THREE.Mesh(connGeometry, connMaterial);
+                conn.position.set(0, -2.5, 0);
+                g.add(conn);
+
+                g.name = 'tft';
+                return g;
+            }
+
+            function createMAX30102() {
+                const g = new THREE.Group();
+
+                // Board
+                const boardGeometry = new THREE.BoxGeometry(1.2, 1.2, 0.12);
+                const boardMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x2e8b57,
+                    shininess: 30
+                });
+                const board = new THREE.Mesh(boardGeometry, boardMaterial);
+                board.castShadow = true;
+                g.add(board);
+
+                // Main chip
+                const chipGeometry = new THREE.BoxGeometry(0.6, 0.6, 0.06);
+                const chipMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x111111,
+                    shininess: 80
+                });
+                const chip = new THREE.Mesh(chipGeometry, chipMaterial);
+                chip.position.z = 0.08;
+                chip.castShadow = true;
+                g.add(chip);
+
+                // Additional components
+                const capGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.1, 16);
+                const capMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
+
+                // Add capacitors
+                for (let i = 0; i < 2; i++) {
+                    const cap = new THREE.Mesh(capGeometry, capMaterial);
+                    cap.rotation.x = Math.PI / 2;
+                    cap.position.set(-0.3 + i * 0.6, -0.3, 0.1);
+                    g.add(cap);
+                }
+
+                // leds with glow effect
+                const ledGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.06, 16);
+
+                const ledRMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xff0000,
+                    emissive: 0x330000
+                });
+                const ledR = new THREE.Mesh(ledGeometry, ledRMaterial);
+                ledR.rotation.x = Math.PI / 2;
+                ledR.position.set(-0.25, 0, 0.12);
+                g.add(ledR);
+
+                const ledIRMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x8800ff,
+                    emissive: 0x220033
+                });
+                const ledIR = new THREE.Mesh(ledGeometry, ledIRMaterial);
+                ledIR.rotation.x = Math.PI / 2;
+                ledIR.position.set(0.25, 0, 0.12);
+                g.add(ledIR);
+
+                g.name = 'max30102';
+                return g;
+            }
+
+            function createBattery() {
+                const g = new THREE.Group();
+
+                // Main body
+                const bodyGeometry = new THREE.BoxGeometry(2.8, 3.8, 0.25);
+                const bodyMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xf39c12,
+                    shininess: 30
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.castShadow = true;
+                g.add(body);
+
+                // Label with more detail
+                const labelGeometry = new THREE.BoxGeometry(2.6, 3.5, 0.02);
+                const labelMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    shininess: 10
+                });
+                const label = new THREE.Mesh(labelGeometry, labelMaterial);
+                label.position.z = 0.13;
+                g.add(label);
+
+                // Add some text/details to the label
+                const detailGeometry = new THREE.BoxGeometry(1.0, 0.2, 0.01);
+                const detailMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+                const detail = new THREE.Mesh(detailGeometry, detailMaterial);
+                detail.position.set(0, 0.8, 0.14);
+                g.add(detail);
+
+                // contacts
+                const contactGeometry = new THREE.BoxGeometry(0.4, 0.12, 0.14);
+                const contactMaterial = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+
+                const pos = new THREE.Mesh(contactGeometry, contactMaterial);
+                pos.position.set(0.9, 1.8, 0.14);
+                g.add(pos);
+
+                const neg = pos.clone();
+                neg.position.set(-0.9, 1.8, 0.14);
+                g.add(neg);
+
+                g.name = 'battery';
+                return g;
+            }
+
+            // add and position components in component view
+            const esp = createESP32();
+            esp.position.set(-4.5, 0.6, -0.2);
+
+            const tft = createTFT();
+            tft.position.set(0, 0.0, 1.2);
+
+            const maxs = createMAX30102();
+            maxs.position.set(4.0, -0.8, -0.2);
+
+            const batt = createBattery();
+            batt.position.set(0, -4.0, -0.2);
+
+            group.add(tft, esp, maxs, batt);
+
+            // store references
+            parts.esp32 = esp;
+            parts.tft = tft;
+            parts.max30102 = maxs;
+            parts.battery = batt;
+
+            // small name sprites for readability
+            function makeSpriteFor(part, text) {
+                const tex = makeLabelTexture(text, { bg: 'rgba(0,0,0,0.6)' });
+                const mat = new THREE.SpriteMaterial({ map: tex });
+                const s = new THREE.Sprite(mat);
+                s.scale.set(3.0, 0.9, 1);
+                s.position.copy(part.position).add(new THREE.Vector3(0, 1.4, 0));
+                scene.add(s);
+                return s;
+            }
+            const sprites = {
+                esp: makeSpriteFor(esp, 'ESP32'),
+                tft: makeSpriteFor(tft, 'TFT 240×240'),
+                max30102: makeSpriteFor(maxs, 'MAX30102'),
+                battery: makeSpriteFor(batt, 'Li-Po 3.7V')
+            };
+
+            // --- wire creation using TubeGeometry (curve) for nicer visuals ---
+            const wires = [];
+            const wireData = []; // Store wire information for connection highlighting
+
+            function createWireCurve(startVec, endVec, colorHex, thickness = 0.06, fromPart, toPart, description) {
+                // create a quadratic bezier curve (midpoint lifted)
+                const mid = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
+                mid.y += 1.0; // lift for arc
+                const curve = new THREE.QuadraticBezierCurve3(startVec, mid, endVec);
+                const tubeGeom = new THREE.TubeGeometry(curve, 48, thickness, 8, false);
+                const mat = new THREE.MeshPhongMaterial({ color: colorHex });
+                const mesh = new THREE.Mesh(tubeGeom, mat);
+                scene.add(mesh);
+                wires.push(mesh);
+
+                // Store wire data for connection highlighting
+                wireData.push({
+                    mesh: mesh,
+                    fromPart: fromPart,
+                    toPart: toPart,
+                    color: colorHex,
+                    description: description
+                });
+
+                return mesh;
+            }
+
+            // helper to get world position of a child group
+            function worldPos(obj, local = new THREE.Vector3(0, 0, 0)) {
+                const p = local.clone();
+                obj.updateMatrixWorld(true);
+                obj.localToWorld(p);
+                return p;
+            }
+
+            function buildWires() {
+                // clean old wires
+                wires.forEach(w => scene.remove(w));
+                wires.length = 0;
+                wireData.length = 0;
+
+                // battery -> esp (power)
+                createWireCurve(
+                    worldPos(batt, new THREE.Vector3(0, 1.5, 0)),
+                    worldPos(esp, new THREE.Vector3(0, 0.4, 0)),
+                    0xff6600, 0.08,
+                    'battery', 'esp32',
+                    'Power (VCC)'
+                );
+
+                // battery -> gnd (black)
+                createWireCurve(
+                    worldPos(batt, new THREE.Vector3(-0.6, 1.5, 0)),
+                    worldPos(esp, new THREE.Vector3(-1.4, -0.8, 0)),
+                    0x222222, 0.06,
+                    'battery', 'esp32',
+                    'Ground (GND)'
+                );
+
+                // SPI esp -> tft (MOSI green, SCLK yellow)
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(0.6, 0.4, 0)),
+                    worldPos(tft, new THREE.Vector3(-0.8, -1.8, 0)),
+                    0x00aa00, 0.05,
+                    'esp32', 'tft',
+                    'SPI MOSI (GPIO23)'
+                );
+
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(0.2, 0.4, 0)),
+                    worldPos(tft, new THREE.Vector3(-0.6, -1.8, 0)),
+                    0xffff00, 0.05,
+                    'esp32', 'tft',
+                    'SPI SCLK (GPIO18)'
+                );
+
+                // I2C esp -> max30102 (blue, purple)
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(-0.8, 0.4, 0)),
+                    worldPos(maxs, new THREE.Vector3(0.0, -0.6, 0)),
+                    0x0066ff, 0.045,
+                    'esp32', 'max30102',
+                    'I²C SDA (GPIO21)'
+                );
+
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(-1.2, 0.4, 0)),
+                    worldPos(maxs, new THREE.Vector3(0.4, -0.6, 0)),
+                    0xaa00ff, 0.045,
+                    'esp32', 'max30102',
+                    'I²C SCL (GPIO22)'
+                );
+
+                // power to TFT and MAX (thin orange lines)
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(0.0, -0.4, 0)),
+                    worldPos(tft, new THREE.Vector3(0, 0.6, 0)),
+                    0xff6600, 0.04,
+                    'esp32', 'tft',
+                    'Power (3.3V)'
+                );
+
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(-0.6, -0.4, 0)),
+                    worldPos(maxs, new THREE.Vector3(0.4, -0.2, 0)),
+                    0xff6600, 0.04,
+                    'esp32', 'max30102',
+                    'Power (3.3V)'
+                );
+
+                // GND to TFT and MAX
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(-1.0, -0.4, 0)),
+                    worldPos(tft, new THREE.Vector3(0.4, 0.6, 0)),
+                    0x222222, 0.04,
+                    'esp32', 'tft',
+                    'Ground (GND)'
+                );
+
+                createWireCurve(
+                    worldPos(esp, new THREE.Vector3(-1.4, -0.4, 0)),
+                    worldPos(maxs, new THREE.Vector3(0.8, -0.2, 0)),
+                    0x222222, 0.04,
+                    'esp32', 'max30102',
+                    'Ground (GND)'
+                );
+            }
+
+            buildWires();
+
+            // --- interactive hover + click info ---
+            const infoBox = document.getElementById('component-info');
+            const hoverLabel = document.getElementById('hover-label');
+            const componentElements = document.querySelectorAll('.component');
+
+            function setInfo(html) {
+                infoBox.innerHTML = html;
+            }
+
+            // highlight material
+            const highlightMat = new THREE.MeshPhongMaterial({ color: 0xffff66, emissive: 0x222200 });
+            const savedMats = new WeakMap(); // store original materials per mesh
+            const wireHighlightMat = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444 });
+
+            function highlightObject(obj, on) {
+                obj.traverse(child => {
+                    if (child.isMesh) {
+                        if (on) {
+                            // store original
+                            if (!savedMats.has(child)) savedMats.set(child, child.material);
+                            child.material = child.material.clone();
+                            child.material.emissive = new THREE.Color(0x113355);
+                            child.material.emissiveIntensity = 0.5;
+                        } else {
+                            if (savedMats.has(child)) child.material = savedMats.get(child);
+                        }
+                    }
+                });
+            }
+
+            // Highlight wires connected to a component - FIXED VERSION
+            function highlightConnectedWires(partKey, on) {
+                wireData.forEach(wire => {
+                    if (wire.fromPart === partKey || wire.toPart === partKey) {
+                        if (on) {
+                            if (!savedMats.has(wire.mesh)) {
+                                savedMats.set(wire.mesh, {
+                                    material: wire.mesh.material,
+                                    scale: wire.mesh.scale.clone()
+                                });
+                            }
+                            // Create a new material for highlighting instead of modifying the original
+                            wire.mesh.material = new THREE.MeshPhongMaterial({
+                                color: wire.color,
+                                emissive: wire.color,
+                                emissiveIntensity: 0.3
+                            });
+                            // Slightly increase wire thickness for highlighting
+                            wire.mesh.scale.set(1.2, 1.2, 1.2);
+                        } else {
+                            if (savedMats.has(wire.mesh)) {
+                                const saved = savedMats.get(wire.mesh);
+                                wire.mesh.material = saved.material;
+                                wire.mesh.scale.copy(saved.scale);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Highlight component in list when clicked in 3D model
+            function highlightComponentInList(partKey) {
+                componentElements.forEach(el => {
+                    el.classList.remove('active');
+                    if (el.dataset.part === partKey) {
+                        el.classList.add('active');
+                    }
+                });
+            }
+
+            // Click handling for component list
+            componentElements.forEach(el => {
+                el.addEventListener('click', () => {
+                    const partKey = el.dataset.part;
+                    highlightComponentInList(partKey);
+                    showComponentInfo(partKey);
+                    highlightObject(parts[partKey], true);
+                    highlightConnectedWires(partKey, true);
+                    setTimeout(() => {
+                        highlightObject(parts[partKey], false);
+                        highlightConnectedWires(partKey, false);
+                    }, 3000);
+                });
+            });
+
+            function showComponentInfo(partKey) {
+                let infoHtml = '';
+                let connectionsHtml = '';
+
+                // Find all connections for this component
+                const connections = wireData.filter(wire =>
+                    wire.fromPart === partKey || wire.toPart === partKey
+                );
+
+                if (partKey === 'esp32') {
+                    infoHtml = '<strong>ESP32 Microcontroller</strong><div style="margin-top:6px">Handles Wi-Fi/BLE, SPI (TFT) and I²C (MAX30102). Typical pins: SDA=GPIO21, SCL=GPIO22, MOSI=GPIO23, SCK=GPIO18, CS=GPIO5.</div>';
+                } else if (partKey === 'tft') {
+                    infoHtml = '<strong>TFT 240×240 Display</strong><div style="margin-top:6px">SPI display. Connect MOSI, SCLK, CS, DC, RST. Drive with ILI9xxx libraries. Keep SPI lines short and shielded in wearables.</div>';
+                } else if (partKey === 'max30102') {
+                    infoHtml = '<strong>MAX30102 Sensor</strong><div style="margin-top:6px">Optical heart-rate & SpO₂ sensor. I²C device; needs good skin contact and signal processing. Pins: VCC (3.3V), GND, SDA, SCL, INT.</div>';
+                } else if (partKey === 'battery') {
+                    infoHtml = '<strong>Li-Po 3.7V Battery</strong><div style="margin-top:6px">Use TP4056 charger and protection board; route power through regulator if required. Never connect raw battery to USB.</div>';
+                } else {
+                    infoHtml = `<strong>${partKey}</strong>`;
+                }
+
+                // Add connection information
+                if (connections.length > 0) {
+                    connectionsHtml = '<div class="connection-info"><strong>Connections:</strong>';
+                    connections.forEach(conn => {
+                        const otherPart = conn.fromPart === partKey ? conn.toPart : conn.fromPart;
+                        const direction = conn.fromPart === partKey ? '→' : '←';
+                        const colorStyle = `background-color: #${conn.color.toString(16).padStart(6, '0')}`;
+
+                        connectionsHtml += `
+                                <div class="connection-item">
+                                    <div class="wire-color" style="${colorStyle}"></div>
+                                    ${partKey} ${direction} ${otherPart}: ${conn.description}
+                                </div>
+                            `;
+                    });
+                    connectionsHtml += '</div>';
+                }
+
+                setInfo(infoHtml + connectionsHtml);
+            }
+
+            // mouse move for hover label
+            function onPointerMove(e) {
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            }
+            container.addEventListener('pointermove', onPointerMove);
+
+            // click handling — show info & flash highlight
+            let currentlyHighlighted = null;
+
+            container.addEventListener('pointerdown', (ev) => {
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+                ray.setFromCamera(mouse, camera);
+                const intersects = ray.intersectObjects(group.children, true);
+
+                // Remove any existing highlights first
+                if (currentlyHighlighted) {
+                    highlightObject(parts[currentlyHighlighted], false);
+                    highlightConnectedWires(currentlyHighlighted, false);
+                    currentlyHighlighted = null;
+                }
+
+                if (intersects.length) {
+                    // find the parent group for this mesh
+                    let obj = intersects[0].object;
+                    while (obj.parent && obj.parent !== scene && !Object.values(parts).includes(obj)) obj = obj.parent;
+                    // find which part matches by name
+                    let chosen = null;
+                    for (const key in parts) {
+                        if (parts[key] === obj || obj === parts[key] || obj.parent === parts[key]) { chosen = key; break; }
+                    }
+                    if (!chosen) {
+                        // fallback: check ancestors
+                        chosen = Object.keys(parts).find(k => obj.name && obj.name.toLowerCase().includes(k));
+                    }
+                    if (chosen) {
+                        currentlyHighlighted = chosen;
+                        // show info and highlight in list
+                        showComponentInfo(chosen);
+                        highlightComponentInList(chosen);
+
+                        // highlight the component and its wires
+                        highlightObject(parts[chosen], true);
+                        highlightConnectedWires(chosen, true);
+                    }
+                }
+            });
+
+            // --- control behaviors ---
+            let rotating = false;
+
+            document.getElementById('rotate-btn').addEventListener('click', function () {
+                rotating = !rotating;
+                this.classList.toggle('active', rotating);
+                this.innerHTML = rotating ?
+                    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97-.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>Stop Rotation' :
+                    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97-.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>Rotate Model';
+            });
+
+            document.getElementById('reset-btn').addEventListener('click', function () {
+                rotating = false;
+                document.getElementById('rotate-btn').classList.remove('active');
+                document.getElementById('rotate-btn').innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97-.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>Rotate Model';
+                group.rotation.set(0, 0, 0);
+                camera.position.set(0, 6, 18);
+                controls.target.set(0, 0, 0);
+                controls.update();
+
+                // Clear any highlights when resetting
+                if (currentlyHighlighted) {
+                    highlightObject(parts[currentlyHighlighted], false);
+                    highlightConnectedWires(currentlyHighlighted, false);
+                    currentlyHighlighted = null;
+                }
+            });
+
+            // animation loop
+            let lastHover = null;
+            function animate() {
+                requestAnimationFrame(animate);
+
+                if (rotating) group.rotation.y += 0.006;
+
+                // hover detection
+                ray.setFromCamera(mouse, camera);
+                const intersects = ray.intersectObjects(group.children, true);
+                if (intersects.length) {
+                    // find parent group for hovered
+                    let obj = intersects[0].object;
+                    while (obj.parent && obj.parent !== scene && !Object.values(parts).includes(obj)) obj = obj.parent;
+                    // determine which part
+                    let partKey = null;
+                    for (const k in parts) if (parts[k] === obj || obj.parent === parts[k] || obj.name === k) { partKey = k; break; }
+                    if (partKey) {
+                        if (lastHover !== partKey) {
+                            // unhighlight old
+                            if (lastHover && lastHover !== currentlyHighlighted) {
+                                highlightObject(parts[lastHover], false);
+                                highlightConnectedWires(lastHover, false);
+                            }
+                            lastHover = partKey;
+
+                            // Only highlight on hover if not already clicked
+                            if (partKey !== currentlyHighlighted) {
+                                highlightObject(parts[partKey], true);
+                                highlightConnectedWires(partKey, true);
+                            }
+
+                            // update hover label location & text
+                            const pos = worldPos(parts[partKey]);
+                            const proj = pos.clone().project(camera);
+                            const rect = container.getBoundingClientRect();
+                            const x = (proj.x * 0.5 + 0.5) * rect.width + rect.left;
+                            const y = (-proj.y * 0.5 + 0.5) * rect.height + rect.top;
+                            hoverLabel.style.left = (x + 10) + 'px';
+                            hoverLabel.style.top = (y + 6) + 'px';
+                            hoverLabel.style.opacity = '1';
+                            hoverLabel.textContent = {
+                                esp32: 'ESP32',
+                                tft: 'TFT 240×240',
+                                max30102: 'MAX30102',
+                                battery: 'Battery'
+                            }[partKey] || partKey;
+                        }
+                    } else {
+                        if (lastHover && lastHover !== currentlyHighlighted) {
+                            highlightObject(parts[lastHover], false);
+                            highlightConnectedWires(lastHover, false);
+                            lastHover = null;
+                            hoverLabel.style.opacity = 0;
+                        }
+                    }
+                } else {
+                    if (lastHover && lastHover !== currentlyHighlighted) {
+                        highlightObject(parts[lastHover], false);
+                        highlightConnectedWires(lastHover, false);
+                        lastHover = null;
+                        hoverLabel.style.opacity = 0;
+                    }
+                }
+
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // utility to get world position of part
+            function worldPos(obj, local = new THREE.Vector3(0, 0, 0)) {
+                const p = local.clone();
+                obj.updateMatrixWorld();
+                obj.localToWorld(p);
+                return p;
+            }
+
+            // initial info
+            setInfo('<strong>Select a component</strong> — detailed information and connections will appear here.');
+
+            // ensure initial resize sets renderer
+            setTimeout(() => {
+                resize();
+                if (loadingEl) loadingEl.remove();
+            }, 50);
+        })();
+        // Student data
+        const students = [
+            { name: "Fady Fouad", id: "692400508", group: "C1" },
+            { name: "Ali Fahmi Abolela", id: "692400782", group: "A2" },
+            { name: "Saif Eldein Mohamed", id: "692400535", group: "C1" },
+            { name: "Mohamed Mahmoud", id: "692400363", group: "A5" },
+            { name: "Mohamed Ali Elgazar", id: "692400051", group: "A4" },
+            { name: "Ahmed Hatem", id: "692400078", group: "H5" },
+            { name: "Mazen Ayman", id: "692400462", group: "A" },
+            { name: "Ebrahim yossef Ebrahim", id: "692400174", group: "E4" },
+            { name: "Ahmad Mohamed Refaul", id: "692400152", group: "E1" },
+            { name: "Ahmad Hamdy", id: "692400512", group: "B3" },
+            { name: "Kareem Mustafa", id: "692400752", group: "E1" },
+            { name: "Kareem Ahmad", id: "692400515", group: "" },
+            { name: "Ziad Raed Ahmad", id: "692400499", group: "B4" },
+            { name: "Omar Ahmad Attia", id: "692400556", group: "" },
+            { name: "Thomas Milad", id: "692400046", group: "A1" },
+            { name: "Ferial Mohamed", id: "692400369", group: "E1" },
+            { name: "Noha Mohamed", id: "692400012", group: "E2" },
+            { name: "Noura Maher", id: "692400276", group: "E1" }
+        ];
+
+        // DOM elements
+        const tableBody = document.getElementById('tableBody');
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const totalStudents = document.getElementById('totalStudents');
+        const totalGroups = document.getElementById('totalGroups');
+        const largestGroup = document.getElementById('largestGroup');
+
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // Initialize the table
+        function renderTable() {
+            tableBody.innerHTML = '';
+
+            const filteredStudents = students.filter(student => {
+                const matchesSearch = currentSearch === '' ||
+                    student.name.toLowerCase().includes(currentSearch) ||
+                    student.id.includes(currentSearch) ||
+                    student.group.toLowerCase().includes(currentSearch);
+
+                const matchesFilter = currentFilter === 'all' ||
+                    student.group.toUpperCase().startsWith(currentFilter);
+
+                return matchesSearch && matchesFilter;
+            });
+
+            filteredStudents.forEach(student => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.id}</td>
+                    <td>${student.group ? `<span class="group-badge">${student.group}</span>` : '-'}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            // Total students
+            totalStudents.textContent = students.length;
+
+            // Total groups (excluding empty groups)
+            const groups = new Set(students.map(s => s.group).filter(g => g));
+            totalGroups.textContent = groups.size;
+
+            // Largest group
+            const groupCounts = {};
+            students.forEach(student => {
+                if (student.group) {
+                    groupCounts[student.group] = (groupCounts[student.group] || 0) + 1;
+                }
+            });
+
+            let maxCount = 0;
+            let largestGroupName = '-';
+            Object.entries(groupCounts).forEach(([group, count]) => {
+                if (count > maxCount) {
+                    maxCount = count;
+                    largestGroupName = group;
+                }
+            });
+
+            largestGroup.textContent = largestGroupName;
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value.toLowerCase();
+            renderTable();
+        });
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentFilter = button.dataset.filter;
+                renderTable();
+            });
+        });
+
+        // Initial render
+        renderTable();
+    </script>
+</body>
+</html>
