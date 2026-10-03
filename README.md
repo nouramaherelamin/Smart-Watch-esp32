@@ -2,10 +2,6 @@
 
 A smartwatch-style prototype built on the **ESP32** that measures **heart rate (BPM)**, **SpO₂ (estimated)**, **steps**, and **movement**, and shows them on a color TFT display with a three-screen interface.
 
-**Course:** CSC2104 — Egyptian Chinese University (ECU), Faculty of Computer & Information Systems
-**Lecturers:** Dr. Haitham Farouk, Dr. Muhamed Abdulhadi
-**TA:** Eng. Nada Abdelhamid
-
 > ⚠️ **Disclaimer:** Educational prototype only. The readings are not clinically validated and must not be used for medical diagnosis or treatment.
 
 ---
